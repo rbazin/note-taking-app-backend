@@ -2,14 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from agent import get_chain
+
 import base64
 import wave
 import subprocess
+import json
 import os
-
-import logging
-
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
 
@@ -28,13 +27,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Audio(BaseModel):
+class Request(BaseModel):
+    # TODO : change notes from str to dict
+    notes_tree: str
     audio_b64: str
 
 @app.post("/transcribe")
-async def transcribe(audio: Audio):
-    # save audio to disk
-    audio_b64 = audio.audio_b64.split(",")[1]
+async def transcribe(req: Request):
+    # TODO : change notes from str to dict
+    notes_str = json.load(req.notes_tree)
+    notes_str = json.dumps(notes_str, indent=2)
+    audio_b64 = req.audio_b64.split(",")[1]
     audio = base64.b64decode(audio_b64)
 
     with wave.open("audio.wav", "wb") as f:
@@ -55,10 +58,15 @@ async def transcribe(audio: Audio):
     # read transcript
     with open("transcript.txt", "r") as f:
         transcript = f.read()
-        transcript = transcript.strip()
+        instructions = transcript.strip()
     
     # remove temporary files
     os.remove("audio.wav")
     os.remove("transcript.txt")
 
-    return {"transcript": f"{transcript}", "notes": f"{transcript}"}
+    # instruction understanding with agent
+    chain = get_chain()
+    new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
+    new_notes_tree = json.loads(new_notes_tree)
+
+    return {"transcript": f"{instructions}", "new_notes": new_notes_tree}
