@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 
 from agent import get_chain
 
@@ -9,6 +10,7 @@ import wave
 import subprocess
 import json
 import os
+import re
 
 app = FastAPI()
 
@@ -27,16 +29,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def parse_json(text: str) -> dict | None:
+    """ Greedly recovers the first occurence of a JSON object in a string """
+    pattern = r"```json\s+(.*?)\s+```"
+    match = re.search(pattern, text, re.DOTALL)
+    
+    if match:
+        json_str = match.group(1)
+        json_obj = json.loads(json_str)
+        return json_obj
+    else:
+        return None
+
+
+class Notes(BaseModel):
+    id: int
+    name: str
+    type: str
+    text: str | None
+    children: List["Notes"]
+
 class Request(BaseModel):
-    # TODO : change notes from str to dict
-    notes_tree: str
+    notes: Notes
     audio_b64: str
 
 @app.post("/transcribe")
 async def transcribe(req: Request):
-    # TODO : change notes from str to dict
-    notes_str = json.load(req.notes_tree)
-    notes_str = json.dumps(notes_str, indent=2)
+    # get notes
+    notes = req.notes.dict()
+    print(notes)
+
+    # notes_str = json.load(req.notes)
+    notes_str = json.dumps(notes, indent=2)
+    print(notes_str)
     audio_b64 = req.audio_b64.split(",")[1]
     audio = base64.b64decode(audio_b64)
 
@@ -55,7 +80,6 @@ async def transcribe(req: Request):
                     "--output-txt",
                     "--output-file", "transcript"])
     
-    # read transcript
     with open("transcript.txt", "r") as f:
         transcript = f.read()
         instructions = transcript.strip()
@@ -66,7 +90,10 @@ async def transcribe(req: Request):
 
     # instruction understanding with agent
     chain = get_chain()
+    # TODO : add a validation and retry step
     new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
-    new_notes_tree = json.loads(new_notes_tree)
+    print("New notes :")
+    print(new_notes_tree)
+    new_notes_tree = parse_json(new_notes_tree)
 
     return {"transcript": f"{instructions}", "new_notes": new_notes_tree}

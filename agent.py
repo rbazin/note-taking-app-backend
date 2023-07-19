@@ -25,7 +25,7 @@ A node of the tree, representing a folder or a note, is a JSON object with the f
 'id': int (unique identifier of the node),
 'name': string (name of the folder or note),
 'text': string (only for notes, 'null' value otherwise),
-'type': string (either 'folder' or 'note'),
+'type': string (either 'folder' or 'file'),
 'children': [...] (children nodes of the folder, empty list otherwise)
 
 
@@ -37,6 +37,14 @@ Here are the actions that you are allowed to perform on the notes tree in JSON f
 - moving a folder (and all its children nodes) to a folder
 - deleting a note
 - deleting a folder (and all its children nodes)
+If the action is not allowed or no instructions are given, return the original notes tree.
+
+
+You will return return the new notes tree wrapped around triple backticks and the 'json' keyword, like this:
+```json
+JSON_NOTES_TREE
+```
+
 
 Now, here is the current organization of the notes tree:
 {notes_tree}
@@ -45,7 +53,7 @@ Now, here is the current organization of the notes tree:
 human_template = """Follow these instructions to modify the organization of the notes tree:
 {instructions}
 
-Only returns the new organization of the notes tree, don't add any comment, and respect the JSON format:"""
+Only return the new organization of the notes tree, don't add any comment, and respect the JSON format encapsulated by the three backsticks and the json tag. If the action is not allowed or no instructions are given, return the original notes tree."""
 
 system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 human_prompt = HumanMessagePromptTemplate.from_template(human_template)
