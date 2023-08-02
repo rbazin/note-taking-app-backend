@@ -41,6 +41,8 @@ Here are the actions that you are allowed to perform on the notes tree in JSON f
 - deleting a folder (and all its children nodes)
 If the action is not allowed or no instructions are given, return the original notes tree.
 
+Additionally, if a user ask you to create a bulletlist inside of a note, each item of the bulletlist should be followed by a new line character. 
+
 
 You will return return the new notes tree wrapped around triple backticks and the 'json' keyword, like this:
 ```json
