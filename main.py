@@ -77,6 +77,7 @@ async def transcribe(req: Request):
                     "-m", "./whisper.cpp/models/ggml-small.bin",
                     "--no-timestamps",
                     "--language", "auto",
+                    "--translate",
                     "--output-txt",
                     "--output-file", "transcript"])
     
