@@ -74,10 +74,9 @@ async def transcribe(req: Request):
     # trascribe audio
     subprocess.run(["./whisper.cpp/main",
                     "-f", "audio.wav", 
-                    "-m", "./whisper.cpp/models/ggml-small.bin",
+                    "-m", "./whisper.cpp/models/ggml-medium.en-q5_0.bin",
                     "--no-timestamps",
-                    "--language", "auto",
-                    "--translate",
+                    "--language", "en",
                     "--output-txt",
                     "--output-file", "transcript"])
     
