@@ -44,7 +44,8 @@ If the action is not allowed or no instructions are given, return the original n
 Additionally, if a user ask you to create a bulletlist inside of a note, each item of the bulletlist should be followed by a new line character. 
 
 
-You will return return the new notes tree wrapped around triple backticks and the 'json' keyword, like this:
+You will return return the new notes tree wrapped around triple backticks and the 'json' keyword, follow this format to answer:
+Thought: your thought process to update the note tree.
 ```json
 JSON_NOTES_TREE
 ```
@@ -63,7 +64,7 @@ system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 human_prompt = HumanMessagePromptTemplate.from_template(human_template)
 CHAT_PROMPT = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-def get_chain(temperature=0):
-    llm = ChatOpenAI(model="gpt-4", temperature=temperature)
+def get_chain(temperature=0, model="gpt-3.5-turbo"):
+    llm = ChatOpenAI(model=model, temperature=temperature)
     chain = LLMChain(llm=llm, prompt=CHAT_PROMPT)
     return chain

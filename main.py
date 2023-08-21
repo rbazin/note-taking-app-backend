@@ -77,6 +77,7 @@ async def transcribe(req: Request):
                     "-m", "./whisper.cpp/models/ggml-medium.en-q5_0.bin",
                     "--no-timestamps",
                     "--language", "en",
+                    #"--translate",
                     "--output-txt",
                     "--output-file", "transcript"])
     
@@ -89,7 +90,7 @@ async def transcribe(req: Request):
     os.remove("transcript.txt")
 
     # instruction understanding with agent
-    chain = get_chain()
+    chain = get_chain(model="gpt-3.5-turbo")
     # TODO : add a validation and retry step
     new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
     print("New notes :")
