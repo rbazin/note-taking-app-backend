@@ -1,6 +1,6 @@
 # Note taking app backend
 
-Beckend for the natural voice commands note-taking app, powered by whisper, langchain and GPT-3.5
+Frontend part of the Natural Voice Commands note-taking application for the Visually Impaired. Intended as a final graduate project for the Human Computer Interaction course at McGill University. Find frontend [here](https://github.com/rbazin/note-taking-app-frontend).
 
 ## Installation
 
