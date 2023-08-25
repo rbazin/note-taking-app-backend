@@ -17,3 +17,19 @@ This project also requires you to create a .env file in the root folder, contain
 ```bash
 uvicorn main:app --reload --port 5000
 ```
+
+## Docker container
+
+Alternatively, you can run the backend as a docker container using the Dockerfile provided.
+
+First, build the image from source :
+
+```
+docker build -t note-taking-backend .
+```
+
+Then run the container :
+
+```
+docker run -d -p 5000:5000 note-taking-backend
+```
