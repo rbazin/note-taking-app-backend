@@ -15,8 +15,7 @@ import re
 app = FastAPI()
 
 origins = [
-    "http://notes.romain-bazin.com",
-    "https://notes.romain-bazin.com",
+    # Insert your url here
     "http://localhost",
     "http://localhost:8080",
 ]
@@ -91,10 +90,23 @@ async def transcribe(req: Request):
 
     # instruction understanding with agent
     chain = get_chain(model="gpt-3.5-turbo")
-    # TODO : add a validation and retry step
-    new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
-    print("New notes :")
-    print(new_notes_tree)
-    new_notes_tree = parse_json(new_notes_tree)
+    try:
+        new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
+        print("New notes :")
+        print(new_notes_tree)
+        new_notes_tree = parse_json(new_notes_tree)
+        for i in range(3):
+            if new_notes_tree is None:
+                print("New notes :")
+                print(new_notes_tree)
+                new_notes_tree = chain.run(notes_tree=notes_str, instructions=instructions)
+                new_notes_tree = parse_json(new_notes_tree)
+            else:
+                break
+    except Exception as e:
+        print(e)
+        return {"transcript": f"{instructions}"}, 500
+    if new_notes_tree is None:
+        return {"transcript": f"{instructions}"}, 500
 
     return {"transcript": f"{instructions}", "new_notes": new_notes_tree}
