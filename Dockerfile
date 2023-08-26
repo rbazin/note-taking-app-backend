@@ -20,9 +20,11 @@ RUN git clone https://github.com/ggerganov/whisper.cpp.git -b v1.4.0 \
     && make quantize \
     && ./quantize models/ggml-medium.en.bin models/ggml-medium.en-q5_0.bin q5_0
 
+RUN pip upgrade --no-cache-dir pip
+
 COPY --chown=python requirements.txt /home/python/requirements.txt
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=python agent.py main.py /home/python/
 
